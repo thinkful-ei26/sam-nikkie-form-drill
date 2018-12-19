@@ -15,7 +15,6 @@ export class DeliveryForm extends React.Component{
         }
     })
         .then(res => {
-          console.log('in first then!');
             if (!res.ok) {
                 if (
                     res.headers.has('content-type') &&
@@ -24,9 +23,11 @@ export class DeliveryForm extends React.Component{
                         .startsWith('application/json')
                 ) {
                     // It's a nice JSON error returned by the server, so decode it
+                    console.log('its a nice JSON error');
                     return res.json().then(err => Promise.reject(err));
                 }
                 // It's a less informative error returned by express
+                console.log('its less informative :(');
                 return Promise.reject({
                     code: res.status,
                     message: res.statusText
@@ -36,6 +37,7 @@ export class DeliveryForm extends React.Component{
         })
         .then(() => console.log('Submitted with values', values))
         .catch(err => {
+            console.log('the err is', err);
             const {reason, message, location} = err;
             if (reason === 'ValidationError') {
                 // Convert ValidationErrors into SubmissionErrors for Redux Form
@@ -47,7 +49,7 @@ export class DeliveryForm extends React.Component{
             }
             return Promise.reject(
                 new SubmissionError({
-                    _error: 'Error submitting message'
+                    _error: err.message
                 })
             );
         });
@@ -92,10 +94,9 @@ export class DeliveryForm extends React.Component{
             label = "Issue?"
             name="issue" 
             id="issue"
-            // validate={[nonEmpty]}
             element = "select"
             >
-            <option value="foo" selected disabled> Select an option</option>
+            {/* <option value="foo" selected disabled> Select an option</option> */}
             <option value="not-delivered">My delivery hasn't arrived</option>
             <option value="wrong-item">Wrong item</option>
             <option value ="missing-part">Missing</option>
@@ -120,9 +121,9 @@ export class DeliveryForm extends React.Component{
 
 export default reduxForm({
   form: 'delivery-form',
-  initialValues: {issue: "foo"},
+//   initialValues: {issue: "foo"},
   onSubmitFail: (errors, dispatch) =>
       dispatch(focus('delivery-form', Object.keys(errors)[0]))
 })(DeliveryForm);
 
-//Question: using disabled with redux - use initial values
+//Question: using disabled with redux - use initial values. Then it doesn't work when we pass through a value for it. And without it it automatically chooses the first option, and it doesnt read that either unless the user clicks it bc it hasnt been triggered as changing if its not in focus. We want to validate select so if its a blank value (like select a value), then it doesnt ever get sent to the server

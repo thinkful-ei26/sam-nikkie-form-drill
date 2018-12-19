@@ -2,11 +2,8 @@ import React from 'react';
 
 export default class Input extends React.Component {
     componentDidUpdate(prevProps) {
-      console.log('in comp did update')
-      console.log(prevProps);
         if (!prevProps.meta.active && this.props.meta.active) {
             this.input.focus();
-            console.log('in the if statement');
         }
     }
     render() {
@@ -24,7 +21,6 @@ export default class Input extends React.Component {
             );
         }
 
-        console.log('here');
 
         return (
             <div className="form-input">
